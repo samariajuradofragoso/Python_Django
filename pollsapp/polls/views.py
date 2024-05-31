@@ -12,8 +12,8 @@ def home(request):
     })
 
 def vote (request, q_id):
-    question = get_object_or_404 (Question, id=q_id)
-
+    question = get_object_or_404 (Question, id=q_id)    
+    question = Question.objects.get(id=q_id)
     if request.method == 'POST':
         try:
             choice = request.POST['choice']
@@ -31,9 +31,13 @@ def vote (request, q_id):
 
 def results (request, q_id):
     try:
-
        question = Question.objects.get(id=q_id)
     except Question.DoesNotExist:
           raise Http404("Question dose not exist")
-    return render(request, 'polls/results.html',
-                  {"question": question})
+    
+    labels = [c.choice_text for c in question.choice_set.all()]
+    data = [c.votes for c in question.choice_set.all()]
+    context = {"question": question, "labels": labels, "data": data}
+    return render(request, "polls/results.html", context)
+   # return render(request, 'polls/results.html',
+    #              {"question": question})
